@@ -1,4 +1,3 @@
-import { assert } from "console";
 import * as path from "path";
 import winston from "winston"
 const snarkjs = require("snarkjs");

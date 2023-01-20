@@ -1,4 +1,3 @@
-import { assert } from "console";
 import * as path from "path";
 const snarkjs = require("snarkjs");
 
