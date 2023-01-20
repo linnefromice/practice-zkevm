@@ -1,3 +1,4 @@
+import { assert } from "console";
 import * as path from "path";
 import winston from "winston"
 const snarkjs = require("snarkjs");
@@ -29,12 +30,25 @@ describe("circuit - Num2Bits", () => {
     //     )
     // )
   })
-  it("sample2", async () => {
-    const inputs = [0, 1, 2, 4, 8, 16, 32, 64, 128, 255]
-    const outputs = await Promise.all(inputs.map(async (v) => {
-      const wtnsName = `witness2-${v}.wtns`
+  it("out witness & check", async () => {
+    const one = BigInt(1)
+    const zero = BigInt(0)
+    const conditions = [
+        { in: 0, out: [one, zero, zero, zero, zero, zero, zero, zero, zero] },
+        { in: 1, out: [one, one, zero, zero, zero, zero, zero, zero, zero] },
+        { in: 2, out: [one, zero, one, zero, zero, zero, zero, zero, zero] },
+        { in: 4, out: [one, zero, zero, one, zero, zero, zero, zero, zero] },
+        { in: 8, out: [one, zero, zero, zero, one, zero, zero, zero, zero] },
+        { in: 16, out: [one, zero, zero, zero, zero, one, zero, zero, zero] },
+        { in: 32, out: [one, zero, zero, zero, zero, zero, one, zero, zero] },
+        { in: 64, out: [one, zero, zero, zero, zero, zero, zero, one, zero] },
+        { in: 128, out: [one, zero, zero, zero, zero, zero, zero, zero, one] },
+        { in: 255, out: [one, one, one, one, one, one, one, one, one] },
+    ]
+    const outputs = await Promise.all(conditions.map(async (v) => {
+      const wtnsName = `witness2-${v.in}.wtns`
       await snarkjs.wtns.calculate(
-        { in: v },
+        { in: v.in },
         path.join(circuitPath, "bitify/Num2Bits_js/Num2Bits.wasm"),
         path.join(__dirname, wtnsName)
       )
@@ -42,8 +56,8 @@ describe("circuit - Num2Bits", () => {
         path.join(__dirname, wtnsName)
       )
     }))
-    for (const output of outputs) {
-      console.log(output)
+    for (const [idx, output] of outputs.entries()) {
+        expect(output).toEqual(conditions[idx].out)
     }
   })
 })
